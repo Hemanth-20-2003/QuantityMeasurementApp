@@ -46,16 +46,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 ========================= */
 async function loadUnits(type) {
   try {
-    const units = await getUnits();
+    const units = await getUnits(type);
 
     // Filter units by type
     const filtered = units.filter(
       u => u.type.toLowerCase() === type.toLowerCase()
     );
-
-    // Populate dropdowns
-    populateSelect("from-unit", filtered);
-    populateSelect("to-unit", filtered);
+    populateSelect("from-unit", units);
+    populateSelect("to-unit", units);
 
   } catch (err) {
     console.error(err);
