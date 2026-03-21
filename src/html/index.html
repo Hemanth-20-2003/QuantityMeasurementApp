@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantity Measurement App</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <!-- Your CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <h1 id="title">QUANTITY MEASUREMENT APP</h1>
+
+    <p class="choose">CHOOSE THE TYPE OF QUANTITY</p>
+
+    <!-- TYPE CARDS -->
+    <div class="types">
+        <div class="card mb-3 cards type-card active" data-type="Length" style="max-width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Length</h5>
+                <i class="fa-solid fa-ruler"></i>
+            </div>
+        </div>
+
+        <div class="card mb-3 cards type-card" data-type="Weight" style="max-width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Weight</h5>
+                <i class="fa-solid fa-weight-hanging"></i>
+            </div>
+        </div>
+
+        <div class="card mb-3 cards type-card" data-type="Temperature" style="max-width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Temperature</h5>
+                <i class="fa-solid fa-temperature-half"></i>
+            </div>
+        </div>
+
+        <div class="card mb-3 cards type-card" data-type="Volume" style="max-width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Volume</h5>
+                <i class="fa-solid fa-flask"></i>
+            </div>
+        </div>
+    </div>
+
+    <p class="choose">CHOOSE THE ACTION</p>
+
+    <!-- ACTION BUTTONS -->
+    <div class="buttons">
+        <button class="actions action-btn" data-action="Comparison">Comparison</button>
+        <button class="actions action-btn active" data-action="Conversion">Conversion</button>
+        <button class="actions action-btn" data-action="Arithmetic">Arithmetic</button>
+    </div>
+
+    <!-- INPUT / OUTPUT -->
+    <div class="fromnto">
+        <div class="from">
+            <input id="from-value" type="number" placeholder="0">
+            <select id="from-unit" class="unit-select"></select>
+        </div>
+
+        <div class="to">
+            <p id="result-value">0</p>
+            <span id="result-unit"></span>
+            <select id="to-unit" class="unit-select"></select>
+        </div>
+    </div>
+
+    <!-- OPERATOR SELECTOR -->
+    <div id="operator-selector" style="display: none;">
+        <button data-op="+">+</button>
+        <button data-op="-">-</button>
+        <button data-op="*">*</button>
+        <button data-op="/">/</button>
+    </div>
+
+    <!-- HISTORY -->
+    <ul id="history-list"></ul>
+
+    <script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
