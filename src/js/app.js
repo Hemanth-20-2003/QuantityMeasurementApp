@@ -1,6 +1,6 @@
 // Import API + UI helpers
 import { getUnits, getConversion, saveHistory } from "./api.js";
-import { populateSelect, renderHistory, showError, toggleOperators } from "./ui.js";
+import { populateDropdown, renderHistory, showError, toggleOperators } from "./ui.js";
 
 /* =========================
    GLOBAL STATE (SINGLE SOURCE OF TRUTH)
@@ -131,8 +131,8 @@ async function loadUnits(type) {
     const filtered = units.filter(
       u => u.type.toLowerCase() === type.toLowerCase()
     );
-    populateSelect("from-unit", filtered);
-populateSelect("to-unit", filtered);
+    populateDropdown(document.getElementById("from-unit"), filtered);
+    populateDropdown(document.getElementById("to-unit"), filtered);
 
   } catch (err) {
     console.error(err);
