@@ -77,3 +77,34 @@ export function toggleOperators(show) {
 function showResult(result) {
   document.getElementById("result").textContent = result;
 }
+/* =========================
+   UC-JS-12: Show Result
+========================= */
+export function showResult(value, unitSymbol) {
+  const valueEl = document.querySelector("#result-value");
+  const unitEl = document.querySelector("#result-unit");
+
+  // ❌ Missing elements
+  if (!valueEl || !unitEl) {
+    console.warn("showResult: result elements not found");
+    return;
+  }
+
+  // ❌ Null value
+  if (value === null || value === undefined) {
+    valueEl.textContent = "—";
+    unitEl.textContent = "";
+    return;
+  }
+
+  // ✅ Set result
+  valueEl.textContent = value;
+  unitEl.textContent = unitSymbol || "";
+
+  // ✅ Highlight animation
+  valueEl.classList.add("highlight");
+
+  setTimeout(() => {
+    valueEl.classList.remove("highlight");
+  }, 1500);
+}
