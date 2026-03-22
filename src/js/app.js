@@ -1,5 +1,5 @@
 // Import API + UI helpers
-import { getUnits, getHistory } from "./api.js";
+import { getUnits, getHistory, getConversion } from "./api.js";
 import { populateSelect, renderHistory, showError, toggleOperators } from "./ui.js";
 
 /* =========================
@@ -14,6 +14,41 @@ const state = {
   toUnit: "",
   operator: "+"
 };
+
+async function handleConversion() {
+  try {
+    const { fromVal, fromUnit, toUnit } = state;
+    console.log("Handling conversion with state:", state);
+    // Validate input
+    if (!fromVal || !fromUnit || !toUnit) return;
+
+    let result;
+
+    // ✅ SAME UNIT (skip API)
+    if (fromUnit === toUnit) {
+      result = fromVal;
+    } else {
+      // ✅ Fetch conversion from API
+      const conv = await getConversion(fromUnit, toUnit);
+
+      if (conv.factor !== null) {
+        result = fromVal * conv.factor;
+      } else {
+        // formula-based (temperature)
+        result = eval(conv.formula.replace("x", fromVal));
+      }
+      console.log(`Conversion result: ${result}`);
+    }
+
+    // Update UI
+    document.getElementById("result-value").textContent = result;
+    document.getElementById("result-unit").textContent = toUnit;
+
+  } catch (err) {
+    console.error(err);
+    alert("Conversion not available for this pair");
+  }
+}
 
 /* =========================
    INITIALISATION
@@ -158,3 +193,16 @@ function attachEventListeners() {
     });
   });
 }
+document.getElementById("from-value").addEventListener("input", async (e) => {
+  state.fromVal = parseFloat(e.target.value);
+  await handleConversion();
+});
+document.getElementById("from-unit").addEventListener("change", async (e) => {
+  state.fromUnit = e.target.value;
+  await handleConversion();
+});
+
+document.getElementById("to-unit").addEventListener("change", async (e) => {
+  state.toUnit = e.target.value;
+  await handleConversion();
+});
