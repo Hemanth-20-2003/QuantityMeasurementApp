@@ -14,6 +14,43 @@ const state = {
   toUnit: "",
   operator: "+"
 };
+/* =========================
+   UC-JS-07: Apply Conversion
+========================= */
+export function applyConversion(value, convObj, fromUnit, toUnit) {
+  // ❌ Invalid number
+  if (!Number.isFinite(value)) {
+    throw new Error("Invalid number");
+  }
+
+  // ✅ Same unit → no conversion
+  if (fromUnit === toUnit) {
+    return parseFloat(value.toFixed(6));
+  }
+
+  try {
+    // ✅ Factor-based conversion
+    if (convObj.factor !== null) {
+      return parseFloat((value * convObj.factor).toFixed(6));
+    }
+
+    // ✅ Formula-based conversion (temperature)
+    if (convObj.formula) {
+      const expr = convObj.formula.replace("x", value);
+
+      const result = eval(expr); // safe: only from db.json
+
+      return parseFloat(result.toFixed(6));
+    }
+
+    // ❌ Neither factor nor formula
+    throw new Error("Invalid conversion object");
+
+  } catch (err) {
+    console.error("Conversion error:", err);
+    throw new Error("Bad formula");
+  }
+}
 
 async function handleConversion() {
   try {
