@@ -3,7 +3,29 @@
 ========================= */
 const BASE_URL = "http://localhost:3000";
 
+/* =========================
+   UC-JS-06: Load History
+========================= */
+export async function getHistory() {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/history?_sort=timestamp&_order=desc`
+    );
 
+    // Optional safety check
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    return await res.json(); // returns [] if no records
+
+  } catch (err) {
+    console.error("Failed to load history:", err);
+
+    // Return empty array (non-breaking)
+    return [];
+  }
+}
 /* =========================
    UC-JS-05: Save to History
 ========================= */
