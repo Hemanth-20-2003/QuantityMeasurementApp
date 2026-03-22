@@ -1,5 +1,5 @@
 // Import API + UI helpers
-import { getUnits, getHistory, getConversion } from "./api.js";
+import { getUnits, getConversion, saveHistory } from "./api.js";
 import { populateSelect, renderHistory, showError, toggleOperators } from "./ui.js";
 
 /* =========================
@@ -17,32 +17,41 @@ const state = {
 
 async function handleConversion() {
   try {
-    const { fromVal, fromUnit, toUnit } = state;
+    const { fromVal, fromUnit, toUnit, type, action } = state;
     console.log("Handling conversion with state:", state);
-    // Validate input
     if (!fromVal || !fromUnit || !toUnit) return;
 
     let result;
+    let expression;
 
-    // ✅ SAME UNIT (skip API)
     if (fromUnit === toUnit) {
       result = fromVal;
+      expression = `${fromVal} ${fromUnit} = ${result} ${toUnit}`;
     } else {
-      // ✅ Fetch conversion from API
       const conv = await getConversion(fromUnit, toUnit);
 
       if (conv.factor !== null) {
         result = fromVal * conv.factor;
+        expression = `${fromVal} ${fromUnit} → ${toUnit}`;
       } else {
-        // formula-based (temperature)
         result = eval(conv.formula.replace("x", fromVal));
+        expression = `${conv.formula} where x=${fromVal}`;
       }
-      console.log(`Conversion result: ${result}`);
     }
 
-    // Update UI
+    // ✅ Update UI
     document.getElementById("result-value").textContent = result;
     document.getElementById("result-unit").textContent = toUnit;
+
+    // ✅ Prepare history record
+    const record = {
+      type,
+      action,
+      expression,
+      result,
+      timestamp: new Date().toISOString()
+    };
+
 
   } catch (err) {
     console.error(err);
@@ -66,8 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Hide operator row initially
     toggleOperators(false);
 
-    // Load history
-    await loadHistory();
 
   } catch (err) {
     console.error(err);
@@ -87,8 +94,8 @@ async function loadUnits(type) {
     const filtered = units.filter(
       u => u.type.toLowerCase() === type.toLowerCase()
     );
-    populateSelect("from-unit", units);
-    populateSelect("to-unit", units);
+    populateSelect("from-unit", filtered);
+populateSelect("to-unit", filtered);
 
   } catch (err) {
     console.error(err);
@@ -97,18 +104,8 @@ async function loadUnits(type) {
 }
 
 
-/* =========================
-   LOAD HISTORY
-========================= */
-async function loadHistory() {
-  try {
-    const history = await getHistory();
-    renderHistory(history);
-  } catch (err) {
-    console.error(err);
-    showError("Failed to load history");
-  }
-}
+
+
 
 
 /* =========================
@@ -137,7 +134,22 @@ function setDefaultActive() {
    EVENT LISTENERS
 ========================= */
 function attachEventListeners() {
+  document.getElementById("from-value").addEventListener("input", async (e) => {
+  state.fromVal = parseFloat(e.target.value);
+  await handleConversion();
+});
+window.addEventListener("beforeunload", () => {
+  console.log("PAGE IS RELOADING");
+});
+document.getElementById("from-unit").addEventListener("change", async (e) => {
+  state.fromUnit = e.target.value;
+  await handleConversion();
+});
 
+document.getElementById("to-unit").addEventListener("change", async (e) => {
+  state.toUnit = e.target.value;
+  await handleConversion();
+});
   /* TYPE CHANGE */
   document.querySelectorAll(".type-card").forEach(card => {
     card.addEventListener("click", async () => {
@@ -170,20 +182,7 @@ function attachEventListeners() {
   });
 
 
-  /* INPUT VALUE */
-  document.getElementById("from-value").addEventListener("input", (e) => {
-    state.fromVal = parseFloat(e.target.value);
-  });
 
-
-  /* UNIT SELECTION */
-  document.getElementById("from-unit").addEventListener("change", (e) => {
-    state.fromUnit = e.target.value;
-  });
-
-  document.getElementById("to-unit").addEventListener("change", (e) => {
-    state.toUnit = e.target.value;
-  });
 
 
   /* OPERATOR SELECT */
@@ -193,16 +192,3 @@ function attachEventListeners() {
     });
   });
 }
-document.getElementById("from-value").addEventListener("input", async (e) => {
-  state.fromVal = parseFloat(e.target.value);
-  await handleConversion();
-});
-document.getElementById("from-unit").addEventListener("change", async (e) => {
-  state.fromUnit = e.target.value;
-  await handleConversion();
-});
-
-document.getElementById("to-unit").addEventListener("change", async (e) => {
-  state.toUnit = e.target.value;
-  await handleConversion();
-});

@@ -3,6 +3,33 @@
 ========================= */
 const BASE_URL = "http://localhost:3000";
 
+
+/* =========================
+   UC-JS-05: Save to History
+========================= */
+export async function saveHistory(record) {
+  try {
+    const res = await fetch(`${BASE_URL}/history`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(record)
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    return await res.json(); // returns saved object with id
+
+  } catch (err) {
+    console.error("Failed to save history:", err);
+
+    // ❗ Do NOT throw — history is non-critical
+    return null;
+  }
+}
 /* =========================
    UC-JS-04: Fetch Conversion Record
 ========================= */
@@ -63,20 +90,4 @@ export async function getConversions() {
   return res.json();
 }
 
-// Save history
-export async function saveHistory(record) {
-  const res = await fetch(`${BASE_URL}/history`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(record)
-  });
-  return res.json();
-}
 
-// Get history
-export async function getHistory() {
-  const res = await fetch(`${BASE_URL}/history`);
-  return res.json();
-}
