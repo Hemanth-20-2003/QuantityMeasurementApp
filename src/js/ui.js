@@ -70,8 +70,12 @@ export function showError(msg) {
 }
 
 export function toggleOperators(show) {
-  document.getElementById("operator-selector").style.display =
-    show ? "block" : "none";
+  const operatorSelector = document.querySelector("#operator-selector");
+  if (!operatorSelector) {
+    console.warn("toggleOperators: #operator-selector element not found");
+    return;
+  }
+  operatorSelector.style.display = show ? "flex" : "none";
 }
 // Show result
 function showResult(result) {
