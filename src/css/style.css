@@ -127,7 +127,7 @@ body{
 }
 
 /* input field */
-#from-value, #result-value{
+#from-value, #to-value, #result-value {
     width:300px;
     padding:12px;
     font-size:18px;
@@ -140,8 +140,18 @@ body{
 }
 
 /* placeholder color */
-#from-value::placeholder{
+#from-value::placeholder,
+#to-value::placeholder {
     color:#90caf9;
+}
+
+/* result area centering */
+#result-container {
+    display:flex;
+    justify-content:center;
+    flex-direction:column;
+    align-items:center;
+    margin-top:20px;
 }
 
 /* dropdown */
@@ -165,4 +175,36 @@ body{
     margin-top: 5px;
     font-size: 14px;
     color:#1565c0;
+}
+
+/* operator row */
+#operator-selector {
+    display: none;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+#operator-selector button {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+    border: 1px solid #1565c0;
+    background: #fff;
+    color: #1565c0;
+    font-size: 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+#operator-selector button:hover {
+    transform: translateY(-2px);
+    background: #1565c0;
+    color: #fff;
+}
+
+#operator-selector button:active {
+    transform: translateY(0);
+    background: #0d47a1;
 }

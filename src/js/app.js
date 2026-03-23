@@ -1,6 +1,7 @@
 // Import API + UI helpers
 import { getUnits, getConversion, saveHistory, getHistory } from "./api.js";
 import { populateDropdown, renderHistory, showError, toggleOperators, setActive, showResult } from "./ui.js";
+import { performArithmetic, compareValues } from "./conversions.js";
 
 /* =========================
    GLOBAL STATE (SINGLE SOURCE OF TRUTH)
@@ -52,54 +53,67 @@ export function applyConversion(value, convObj, fromUnit, toUnit) {
   }
 }
 
-async function handleConversion() {
+async function calculate() {
   try {
-    const { fromVal, fromUnit, toUnit, type, action } = state;
-    console.log("Handling conversion with state:", state);
-    if (!fromVal || !fromUnit || !toUnit) return;
+    const { fromVal, toVal, fromUnit, toUnit, type, action, operator } = state;
+    console.log("calculate() state:", state);
 
-    let result;
-    let expression;
+    if (action === "Conversion") {
+      if (!Number.isFinite(fromVal) || !fromUnit || !toUnit) return;
 
-    if (fromUnit === toUnit) {
-      result = fromVal;
-      expression = `${fromVal} ${fromUnit} = ${result} ${toUnit}`;
-    } else {
       const conv = await getConversion(fromUnit, toUnit);
+      const result = applyConversion(fromVal, conv, fromUnit, toUnit);
+      const expression = `${fromVal} ${fromUnit} → ${result} ${toUnit}`;
+      showResult(result, toUnit);
 
-      if (conv.factor !== null) {
-        result = fromVal * conv.factor;
-        expression = `${fromVal} ${fromUnit} → ${toUnit}`;
-      } else {
-        result = eval(conv.formula.replace("x", fromVal));
-        expression = `${conv.formula} where x=${fromVal}`;
-      }
+      const record = { type, action, expression, result, timestamp: new Date().toISOString() };
+      //await saveHistory(record);
+      renderHistory(await getHistory());
+      return;
     }
 
-    // ✅ Update UI
-    document.getElementById("result-value").textContent = result;
-    document.getElementById("result-unit").textContent = toUnit;
+    if (!Number.isFinite(fromVal) || !Number.isFinite(toVal) || !fromUnit || !toUnit) return;
 
-    // ✅ Prepare history record
-    const record = {
-      type,
-      action,
-      expression,
-      result,
-      timestamp: new Date().toISOString()
-    };
+    if (action === "Comparison") {
+      let comparison;
+      let expression;
+      if (fromUnit === toUnit) {
+        comparison = compareValues(fromVal, fromUnit, toVal, toUnit, fromVal, toVal);
+        expression = `${fromVal} ${fromUnit} ? ${toVal} ${toUnit}`;
+      } else {
+        const toNormalized = await getConversion(toUnit, fromUnit);
+        const convertedToVal = applyConversion(toVal, toNormalized, toUnit, fromUnit);
+        comparison = compareValues(fromVal, fromUnit, convertedToVal, fromUnit, fromVal, convertedToVal);
+        expression = `${fromVal} ${fromUnit} ? ${toVal} ${toUnit} (${convertedToVal} ${fromUnit})`;
+      }
+      showResult(comparison, "");
+      const record = { type, action, expression, result: comparison, timestamp: new Date().toISOString() };
+      //await saveHistory(record);
+      renderHistory(await getHistory());
+      return;
+    }
 
-    // ✅ Save to history
-    await saveHistory(record);
-
-    // ✅ Render updated history
-    const history = await getHistory();
-    renderHistory(history);
-
-
+    if (action === "Arithmetic") {
+      let result;
+      let expression;
+      if (fromUnit === toUnit) {
+        result = performArithmetic(fromVal, toVal, operator);
+        expression = `${fromVal} ${fromUnit} ${operator} ${toVal} ${toUnit}`;
+      } else {
+        const conv = await getConversion(toUnit, fromUnit);
+        const normalized = applyConversion(toVal, conv, toUnit, fromUnit);
+        result = performArithmetic(fromVal, normalized, operator);
+        expression = `${fromVal} ${fromUnit} ${operator} ${toVal} ${toUnit} (→ ${normalized} ${fromUnit})`;
+      }
+      showResult(result, fromUnit);
+      const record = { type, action, expression, result, timestamp: new Date().toISOString() };
+      //await saveHistory(record);
+      renderHistory(await getHistory());
+      return;
+    }
   } catch (err) {
     console.error(err);
-    alert("Conversion not available for this pair");
+    showResult(`Error: ${err.message}`, "");
   }
 }
 
@@ -183,21 +197,28 @@ function setDefaultActive() {
 ========================= */
 function attachEventListeners() {
   document.getElementById("from-value").addEventListener("input", async (e) => {
-  state.fromVal = parseFloat(e.target.value);
-  await handleConversion();
-});
-window.addEventListener("beforeunload", () => {
-  console.log("PAGE IS RELOADING");
-});
-document.getElementById("from-unit").addEventListener("change", async (e) => {
-  state.fromUnit = e.target.value;
-  await handleConversion();
-});
+    state.fromVal = parseFloat(e.target.value);
+    await calculate();
+  });
 
-document.getElementById("to-unit").addEventListener("change", async (e) => {
-  state.toUnit = e.target.value;
-  await handleConversion();
-});
+  document.getElementById("to-value").addEventListener("input", async (e) => {
+    state.toVal = parseFloat(e.target.value);
+    await calculate();
+  });
+
+  window.addEventListener("beforeunload", () => {
+    console.log("PAGE IS RELOADING");
+  });
+
+  document.getElementById("from-unit").addEventListener("change", async (e) => {
+    state.fromUnit = e.target.value;
+    await calculate();
+  });
+
+  document.getElementById("to-unit").addEventListener("change", async (e) => {
+    state.toUnit = e.target.value;
+    await calculate();
+  });
   /* TYPE CHANGE */
   const typeSelector = document.querySelector(".types");
   const fromInput = document.getElementById("from-value");
@@ -211,8 +232,10 @@ document.getElementById("to-unit").addEventListener("change", async (e) => {
       setActive(typeSelector, card, ".type-card");
 
       fromInput.value = "";
+      document.getElementById("to-value").value = "";
       toSelect.value = "";
       state.fromVal = null;
+      state.toVal = null;
       state.fromUnit = "";
       state.toUnit = "";
       showResult(0, "");

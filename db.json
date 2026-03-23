@@ -168,6 +168,30 @@
       "expression": "1 cm = 1 cm",
       "result": 1,
       "timestamp": "2026-03-23T00:47:35.393Z"
+    },
+    {
+      "id": "5ae9",
+      "type": "Length",
+      "action": "Conversion",
+      "expression": "1 km → 1 km",
+      "result": 1,
+      "timestamp": "2026-03-23T01:03:08.273Z"
+    },
+    {
+      "id": "4c88",
+      "type": "Length",
+      "action": "Arithmetic",
+      "expression": "1 cm + 1 cm",
+      "result": 2,
+      "timestamp": "2026-03-23T01:03:18.955Z"
+    },
+    {
+      "id": "0ab5",
+      "type": "Length",
+      "action": "Conversion",
+      "expression": "12 km → 12 km",
+      "result": 12,
+      "timestamp": "2026-03-23T01:10:58.542Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

@@ -57,6 +57,11 @@ export async function saveHistory(record) {
    UC-JS-04: Fetch Conversion Record
 ========================= */
 export async function getConversion(from, to) {
+  // short-circuit same unit
+  if (from === to) {
+    return { from, to, factor: 1, formula: null };
+  }
+
   try {
     const res = await fetch(
       `${BASE_URL}/conversions?from=${from}&to=${to}`

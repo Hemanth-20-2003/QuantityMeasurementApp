@@ -61,7 +61,7 @@
         <button class="actions action-btn" data-action="Arithmetic" type="button">Aritmetic</button>
     </div>
 
-    <!-- INPUT / OUTPUT -->
+    <!-- INPUTS -->
     <div class="fromnto">
         <div class="from">
             <input id="from-value" type="number" placeholder="0">
@@ -69,10 +69,15 @@
         </div>
 
         <div class="to">
-            <p id="result-value">0</p>
-            <span id="result-unit"></span>
+            <input id="to-value" type="number" placeholder="0">
             <select id="to-unit" class="unit-select"></select>
         </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result-container" class="result-container">
+        <p id="result-value">0</p>
+        <span id="result-unit"></span>
     </div>
 
     <!-- OPERATOR SELECTOR -->
