@@ -83,9 +83,7 @@ export function toggleOperators(show) {
   operatorSelector.style.display = show ? "flex" : "none";
 }
 // Show result
-function showResult(result) {
-  document.getElementById("result").textContent = result;
-}
+
 /* =========================
    UC-JS-12: Show Result
 ========================= */

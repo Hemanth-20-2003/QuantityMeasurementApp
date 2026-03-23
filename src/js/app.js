@@ -1,6 +1,6 @@
 // Import API + UI helpers
 import { getUnits, getConversion, saveHistory, getHistory } from "./api.js";
-import { populateDropdown, renderHistory, showError, toggleOperators } from "./ui.js";
+import { populateDropdown, renderHistory, showError, toggleOperators, setActive, showResult } from "./ui.js";
 
 /* =========================
    GLOBAL STATE (SINGLE SOURCE OF TRUTH)
@@ -199,18 +199,31 @@ document.getElementById("to-unit").addEventListener("change", async (e) => {
   await handleConversion();
 });
   /* TYPE CHANGE */
+  const typeSelector = document.querySelector(".types");
+  const fromInput = document.getElementById("from-value");
+  const fromSelect = document.getElementById("from-unit");
+  const toSelect = document.getElementById("to-unit");
+
   document.querySelectorAll(".type-card").forEach(card => {
     card.addEventListener("click", async () => {
-
-      // Update state
       state.type = card.dataset.type;
 
-      // UI update
-      document.querySelectorAll(".type-card").forEach(c => c.classList.remove("active"));
-      card.classList.add("active");
+      setActive(typeSelector, card, ".type-card");
 
-      // Reload units
-      await loadUnits(state.type);
+      fromInput.value = "";
+      showResult(0, "");
+
+      try {
+        const units = await getUnits(state.type);
+        populateDropdown(fromSelect, units);
+        populateDropdown(toSelect, units);
+        state.fromUnit = "";
+        state.toUnit = "";
+      } catch (err) {
+        console.error(err);
+        showError("Failed to load units");
+        // Do not clear existing dropdowns
+      }
     });
   });
 

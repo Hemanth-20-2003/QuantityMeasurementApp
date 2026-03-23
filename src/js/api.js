@@ -26,6 +26,7 @@ export async function getHistory() {
     return [];
   }
 }
+
 /* =========================
    UC-JS-05: Save to History
 ========================= */
