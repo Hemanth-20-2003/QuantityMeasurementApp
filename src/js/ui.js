@@ -54,13 +54,18 @@ export function populateDropdown(selectEl, units) {
   });
 }
 
-export function renderHistory(history) {
-  const list = document.getElementById("history-list");
+export function renderHistory(records) {
+  const list = document.querySelector("#history-list");
   list.innerHTML = "";
 
-  history.forEach(item => {
+  if (!records || !records.length) {
+    list.innerHTML = "<li>No history yet.</li>";
+    return;
+  }
+
+  records.forEach(r => {
     const li = document.createElement("li");
-    li.textContent = `${item.value} ${item.from} → ${item.result} ${item.to}`;
+    li.textContent = `${r.expression} = ${r.result} (${new Date(r.timestamp).toLocaleString()})`;
     list.appendChild(li);
   });
 }

@@ -1,5 +1,5 @@
 // Import API + UI helpers
-import { getUnits, getConversion, saveHistory } from "./api.js";
+import { getUnits, getConversion, saveHistory, getHistory } from "./api.js";
 import { populateDropdown, renderHistory, showError, toggleOperators } from "./ui.js";
 
 /* =========================
@@ -89,6 +89,13 @@ async function handleConversion() {
       timestamp: new Date().toISOString()
     };
 
+    // ✅ Save to history
+    await saveHistory(record);
+
+    // ✅ Render updated history
+    const history = await getHistory();
+    renderHistory(history);
+
 
   } catch (err) {
     console.error(err);
@@ -111,6 +118,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Hide operator row initially
     toggleOperators(false);
+
+    // Load and render history
+    const history = await getHistory();
+    renderHistory(history);
 
 
   } catch (err) {
