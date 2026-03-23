@@ -211,34 +211,39 @@ document.getElementById("to-unit").addEventListener("change", async (e) => {
       setActive(typeSelector, card, ".type-card");
 
       fromInput.value = "";
+      toSelect.value = "";
+      state.fromVal = null;
+      state.fromUnit = "";
+      state.toUnit = "";
       showResult(0, "");
 
       try {
         const units = await getUnits(state.type);
         populateDropdown(fromSelect, units);
         populateDropdown(toSelect, units);
-        state.fromUnit = "";
-        state.toUnit = "";
       } catch (err) {
         console.error(err);
         showError("Failed to load units");
-        // Do not clear existing dropdowns
+        // Do not clear existing dropdowns from previous state
       }
     });
   });
 
 
   /* ACTION CHANGE */
+  const actionSelector = document.querySelector(".buttons");
   document.querySelectorAll(".action-btn").forEach(btn => {
     btn.addEventListener("click", () => {
 
       state.action = btn.dataset.action;
 
-      document.querySelectorAll(".action-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+      setActive(actionSelector, btn, ".action-btn");
 
       // Show operators only for Arithmetic
       toggleOperators(state.action === "Arithmetic");
+
+      // Reset result for any action switch
+      showResult(0, "");
     });
   });
 
